@@ -28,19 +28,24 @@ fi
 #SELECT KEYMAP {{{
 select_keymap(){
   print_title "KEYMAP - https://wiki.archlinux.org/index.php/KEYMAP"
+  keymap_list=("ANSI-dvorak" "amiga-de" "amiga-us" "applkey" "atari-de" "atari-se" "atari-uk-falcon" "atari-us" "azerty" "backspace" "bashkir" "be-latin1" "bg-cp1251" "bg-cp855" "bg_bds-cp1251" "bg_bds-utf8" "bg_pho-cp1251" "bg_pho-utf8" "br-abnt" "br-abnt2" "br-latin1-abnt2" "br-latin1-us" "by" "by-cp1251" "bywin-cp1251" "cf" "colemak" "croat" "ctrl" "cz" "cz-cp1250" "cz-lat2" "cz-lat2-prog" "cz-qwertz" "cz-us-qwertz" "de" "de-latin1" "de-latin1-nodeadkeys" "de-mobii" "de_CH-latin1" "de_alt_UTF-8" "defkeymap" "defkeymap_V1.0" "dk" "dk-latin1" "dvorak" "dvorak-ca-fr" "dvorak-es" "dvorak-fr" "dvorak-l" "dvorak-la" "dvorak-programmer" "dvorak-r" "dvorak-ru" "dvorak-sv-a1" "dvorak-sv-a5" "dvorak-uk" "emacs" "emacs2" "es" "es-cp850" "es-olpc" "et" "et-nodeadkeys" "euro" "euro1" "euro2" "fi" "fr" "fr-bepo" "fr-bepo-latin9" "fr-latin1" "fr-latin9" "fr-pc" "fr_CH" "fr_CH-latin1" "gr" "gr-pc" "hu" "hu101" "il" "il-heb" "il-phonetic" "is-latin1" "is-latin1-us" "it" "it-ibm" "it2" "jp106" "kazakh" "keypad" "ky_alt_sh-UTF-8" "kyrgyz" "la-latin1" "lt" "lt.baltic" "lt.l4" "lv" "lv-tilde" "mac-be" "mac-de-latin1" "mac-de-latin1-nodeadkeys" "mac-de_CH" "mac-dk-latin1" "mac-dvorak" "mac-es" "mac-euro" "mac-euro2" "mac-fi-latin1" "mac-fr" "mac-fr_CH-latin1" "mac-it" "mac-pl" "mac-pt-latin1" "mac-se" "mac-template" "mac-uk" "mac-us" "mk" "mk-cp1251" "mk-utf" "mk0" "nl" "nl2" "no" "no-dvorak" "no-latin1" "pc110" "pl" "pl1" "pl2" "pl3" "pl4" "pt-latin1" "pt-latin9" "pt-olpc" "ro" "ro_std" "ro_win" "ru" "ru-cp1251" "ru-ms" "ru-yawerty" "ru1" "ru2" "ru3" "ru4" "ru_win" "ruwin_alt-CP1251" "ruwin_alt-KOI8-R" "ruwin_alt-UTF-8" "ruwin_alt_sh-UTF-8" "ruwin_cplk-CP1251" "ruwin_cplk-KOI8-R" "ruwin_cplk-UTF-8" "ruwin_ct_sh-CP1251" "ruwin_ct_sh-KOI8-R" "ruwin_ct_sh-UTF-8" "ruwin_ctrl-CP1251" "ruwin_ctrl-KOI8-R" "ruwin_ctrl-UTF-8" "se-fi-ir209" "se-fi-lat6" "se-ir209" "se-lat6" "sg" "sg-latin1" "sg-latin1-lk450" "sk-prog-qwerty" "sk-prog-qwertz" "sk-qwerty" "sk-qwertz" "slovene" "sr-cy" "sun-pl" "sun-pl-altgraph" "sundvorak" "sunkeymap" "sunt4-es" "sunt4-fi-latin1" "sunt4-no-latin1" "sunt5-cz-us" "sunt5-de-latin1" "sunt5-es" "sunt5-fi-latin1" "sunt5-fr-latin1" "sunt5-ru" "sunt5-uk" "sunt5-us-cz" "sunt6-uk" "sv-latin1" "tj_alt-UTF8" "tr_f-latin5" "tr_q-latin5" "tralt" "trf" "trf-fgGIod" "trq" "ttwin_alt-UTF-8" "ttwin_cplk-UTF-8" "ttwin_ct_sh-UTF-8" "ttwin_ctrl-UTF-8" "ua" "ua-cp1251" "ua-utf" "ua-utf-ws" "ua-ws" "uk" "unicode" "us" "us-acentos" "wangbe" "wangbe2" "windowkeys");
+  PS3="$prompt1"
   print_info "The KEYMAP variable is specified in the /etc/rc.conf file. It defines what keymap the keyboard is in the virtual consoles. Keytable files are provided by the kbd package."
-  OPTION=n
-  while [[ $OPTION != y ]]; do
-    getkeymap
-    read_input_text "Confirm keymap: $KEYMAP"
-  done
-  loadkeys $KEYMAP
+  echo "keymap list in /usr/share/kbd/keymaps"
+    select KEYMAP in "${keymap_list[@]}"; do
+    if contains_element "$KEYMAP" "${keymap_list[@]}"; then
+      loadkeys "$KEYMAP";
+      break
+    else
+      invalid_option
+    fi
+    done
 }
 #}}}
 #DEFAULT EDITOR {{{
 select_editor(){
   print_title "DEFAULT EDITOR"
-  editors_list=("emacs" "nano" "vi" "vim" "zile");
+  editors_list=("emacs" "nano" "vi" "vim" "neovim" "zile");
   PS3="$prompt1"
   echo -e "Select editor\n"
   select EDITOR in "${editors_list[@]}"; do
@@ -55,15 +60,15 @@ select_editor(){
 #}}}
 #MIRRORLIST {{{
 configure_mirrorlist(){
-  local countries_code=("AU" "AT" "BY" "BE" "BR" "BG" "CA" "CL" "CN" "CO" "CZ" "DK" "EE" "FI" "FR" "DE" "GR" "HU" "IN" "IE" "IL" "IT" "JP" "KZ" "KR" "LV" "LU" "MK" "NL" "NC" "NZ" "NO" "PL" "PT" "RO" "RU" "RS" "SG" "SK" "ZA" "ES" "LK" "SE" "CH" "TW" "TR" "UA" "GB" "US" "UZ" "VN")
-  local countries_name=("Australia" "Austria" "Belarus" "Belgium" "Brazil" "Bulgaria" "Canada" "Chile" "China" "Colombia" "Czech Republic" "Denmark" "Estonia" "Finland" "France" "Germany" "Greece" "Hungary" "India" "Ireland" "Israel" "Italy" "Japan" "Kazakhstan" "Korea" "Latvia" "Luxembourg" "Macedonia" "Netherlands" "New Caledonia" "New Zealand" "Norway" "Poland" "Portugal" "Romania" "Russian" "Serbia" "Singapore" "Slovakia" "South Africa" "Spain" "Sri Lanka" "Sweden" "Switzerland" "Taiwan" "Turkey" "Ukraine" "United Kingdom" "United States" "Uzbekistan" "Viet Nam")
+  local countries_code=("AU" "AT" "BY" "BE" "BR" "BG" "CA" "CL" "CN" "CO" "CZ" "DK" "EE" "FI" "FR" "DE" "GR" "HK" "HU" "ID" "IN" "IR" "IE" "IL" "IT" "JP" "KZ" "KR" "LV" "LU" "MK" "NL" "NC" "NZ" "NO" "PL" "PT" "RO" "RU" "RS" "SG" "SK" "ZA" "ES" "LK" "SE" "CH" "TW" "TR" "UA" "GB" "US" "UZ" "VN")
+  local countries_name=("Australia" "Austria" "Belarus" "Belgium" "Brazil" "Bulgaria" "Canada" "Chile" "China" "Colombia" "Czech Republic" "Denmark" "Estonia" "Finland" "France" "Germany" "Greece" "Hong Kong" "Hungary" "Indonesia" "India" "Iran" "Ireland" "Israel" "Italy" "Japan" "Kazakhstan" "Korea" "Latvia" "Luxembourg" "Macedonia" "Netherlands" "New Caledonia" "New Zealand" "Norway" "Poland" "Portugal" "Romania" "Russia" "Serbia" "Singapore" "Slovakia" "South Africa" "Spain" "Sri Lanka" "Sweden" "Switzerland" "Taiwan" "Turkey" "Ukraine" "United Kingdom" "United States" "Uzbekistan" "Viet Nam")
   country_list(){
     #`reflector --list-countries | sed 's/[0-9]//g' | sed 's/^/"/g' | sed 's/,.*//g' | sed 's/ *$//g'  | sed 's/$/"/g' | sed -e :a -e '$!N; s/\n/ /; ta'`
     PS3="$prompt1"
     echo "Select your country:"
     select country_name in "${countries_name[@]}"; do
       if contains_element "$country_name" "${countries_name[@]}"; then
-        contry_code=${countries_code[$(( $REPLY - 1 ))]}
+        country_code=${countries_code[$(( $REPLY - 1 ))]}
         break
       else
         invalid_option
@@ -78,7 +83,7 @@ configure_mirrorlist(){
     read_input_text "Confirm country: $country_name"
   done
 
-  url="https://www.archlinux.org/mirrorlist/?country=${contry_code}&use_mirror_status=on"
+  url="https://www.archlinux.org/mirrorlist/?country=${country_code}&use_mirror_status=on"
 
   tmpfile=$(mktemp --suffix=-mirrorlist)
 
@@ -104,7 +109,7 @@ configure_mirrorlist(){
   $EDITOR /etc/pacman.d/mirrorlist
 }
 #}}}
-#UMOUNT PARTITIONS {{{
+#SETUP ALTERNATIVE DNS {{{
 setup_alt_dns(){
   cat <<- EOF > /etc/resolv.conf.head
 # OpenDNS IPv4 nameservers
@@ -121,8 +126,8 @@ nameserver 8.8.4.4
 nameserver 2001:4860:4860::8888
 nameserver 2001:4860:4860::8844
 
-# Comodo nameservers 
-nameserver 8.26.56.26 
+# Comodo nameservers
+nameserver 8.26.56.26
 nameserver 8.20.247.20
 
 # Basic Yandex.DNS - Quick and reliable DNS
@@ -137,12 +142,13 @@ nameserver 77.88.8.3
 
 # censurfridns.dk IPv4 nameservers
 nameserver 91.239.100.100
-nameserver 89.233.43.71 
+nameserver 89.233.43.71
 # censurfridns.dk IPv6 nameservers
-nameserver 2001:67c:28a4::   
+nameserver 2001:67c:28a4::
 nameserver 2002:d596:2a92:1:71:53::
 EOF
 }
+#}}}
 #UMOUNT PARTITIONS {{{
 umount_partitions(){
   mounted_partitions=(`lsblk | grep ${MOUNTPOINT} | awk '{print $7}' | sort -r`)
@@ -154,9 +160,12 @@ umount_partitions(){
 #}}}
 #SELECT DEVICE {{{
 select_device(){
-  devices_list=(`lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd'`);
+  devices_list=(`lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd\|nvme\|mmcblk'`);
   PS3="$prompt1"
-  echo -e "Select partition:\n"
+  echo -e "Attached Devices:\n"
+  lsblk -lnp -I 2,3,8,9,22,34,56,57,58,65,66,67,68,69,70,71,72,91,128,129,130,131,132,133,134,135,259 | awk '{print $1,$4,$6,$7}'| column -t
+  echo -e "\n"
+  echo -e "Select device to partition:\n"
   select device in "${devices_list[@]}"; do
     if contains_element "${device}" "${devices_list[@]}"; then
       break
@@ -174,10 +183,11 @@ create_partition_scheme(){
   print_title "https://wiki.archlinux.org/index.php/Partitioning"
   print_info "Partitioning a hard drive allows one to logically divide the available space into sections that can be accessed independently of one another."
   print_warning "Maintain Current does not work with LUKS"
-  partition_layout=("Default" "LVM" "LVM+LUKS" "Maintain Current")
+  partition_layouts=("Default" "LVM" "LVM+LUKS" "Maintain Current")
   PS3="$prompt1"
   echo -e "Select partition scheme:"
-  select OPT in "${partition_layout[@]}"; do
+  select OPT in "${partition_layouts[@]}"; do
+    partition_layout=$OPT
     case "$REPLY" in
       1)
         create_partition
@@ -290,7 +300,7 @@ setup_lvm(){
 #SELECT|FORMAT PARTITIONS {{{
 format_partitions(){
   print_title "https://wiki.archlinux.org/index.php/File_Systems"
-  print_info "This step will select and format the selected partiton where the archlinux will be installed"
+  print_info "This step will select and format the selected partition where archlinux will be installed"
   print_danger "\tAll data on the ROOT and SWAP partition will be LOST."
   i=0
 
@@ -380,6 +390,7 @@ format_partitions(){
             fi
             break
           done
+          swap_type="partition"
           break
           ;;
         2)
@@ -389,10 +400,12 @@ format_partitions(){
           mkswap ${MOUNTPOINT}/swapfile
           swapon ${MOUNTPOINT}/swapfile
           i=$(( i + 1 ))
+          swap_type="file"
           break
           ;;
         3)
           i=$(( i + 1 ))
+          swap_type="none"
           break
           ;;
         *)
@@ -486,24 +499,49 @@ format_partitions(){
 }
 #}}}
 #INSTALL BASE SYSTEM {{{
+select_linux_version() {
+  print_title "LINUX VERSION"
+  version_list=("linux (default)" "linux-lts (long term support)" "linux-hardened (security features)");
+  PS3="$prompt1"
+  echo -e "Select linux version to install\n"
+  select VERSION in "${version_list[@]}"; do
+    if contains_element "$VERSION" "${version_list[@]}"; then
+       if [ "linux (default)" == "$VERSION" ];then
+          pacstrap ${MOUNTPOINT} base linux-headers
+       elif [ "linux-lts (long term support)" == "$VERSION" ];then
+          pacman -Sg base | cut -d ' ' -f 2 | sed s/\^linux\$/linux-lts/g | pacstrap ${MOUNTPOINT} - linux-lts-headers
+       elif [ "linux-hardened (security features)" == "$VERSION" ];then
+          pacman -Sg base | cut -d ' ' -f 2 | sed s/\^linux\$/linux-hardened/g | pacstrap ${MOUNTPOINT} - linux-hardened-headers
+      fi
+      break
+    else
+      invalid_option
+    fi
+  done
+}
 install_base_system(){
   print_title "INSTALL BASE SYSTEM"
+  print_info "Installing PGP keyring"
+  pacman -Sy archlinux-keyring
   print_info "Using the pacstrap script we install the base system. The base-devel package group will be installed also."
-  pacstrap ${MOUNTPOINT} base base-devel parted btrfs-progs ntp
+  rm ${MOUNTPOINT}${EFI_MOUNTPOINT}/vmlinuz-linux
+  select_linux_version
+  pacstrap ${MOUNTPOINT} base-devel parted btrfs-progs f2fs-tools ntp net-tools
   [[ $? -ne 0 ]] && error_msg "Installing base system to ${MOUNTPOINT} failed. Check error messages above."
   local PTABLE=`parted -l | grep "gpt"`
   [[ -n $PTABLE ]] && pacstrap ${MOUNTPOINT} gptfdisk
-  WIRELESS_DEV=`ip link | grep wlp | awk '{print $2}'| sed 's/://' | sed '1!d'`
+  WIRELESS_DEV=`ip link | grep wl | awk '{print $2}'| sed 's/://' | sed '1!d'`
   if [[ -n $WIRELESS_DEV ]]; then
     pacstrap ${MOUNTPOINT} iw wireless_tools wpa_actiond wpa_supplicant dialog
-  fi
-  WIRED_DEV=`ip link | grep "eno\|enp" | awk '{print $2}'| sed 's/://' | sed '1!d'`
-  if [[-n $WIRED_DEV ]]; then
-    arch_chroot "systemctl enable dhcpcd@${WIRED_DEV}"
+  else
+    WIRED_DEV=`ip link | grep "ens\|eno\|enp" | awk '{print $2}'| sed 's/://' | sed '1!d'`
+    if [[ -n $WIRED_DEV ]]; then
+      arch_chroot "systemctl enable dhcpcd@${WIRED_DEV}.service"
+    fi
   fi
   if is_package_installed "espeakup"; then
     pacstrap ${MOUNTPOINT} alsa-utils espeakup brltty
-    arch_chroot "systemctl enable espeakup"
+    arch_chroot "systemctl enable espeakup.service"
   fi
 }
 #}}}
@@ -544,6 +582,7 @@ configure_fstab(){
     esac
     [[ -n $OPT ]] && break
   done
+  fstab=$OPT
   echo "Review your fstab"
   [[ -f ${MOUNTPOINT}/swapfile ]] && sed -i "s/\\${MOUNTPOINT}//" ${MOUNTPOINT}/etc/fstab
   pause_function
@@ -574,7 +613,11 @@ configure_timezone(){
     settimezone
     read_input_text "Confirm timezone (${ZONE}/${SUBZONE})"
   done
-  arch_chroot "ln -s /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
+  arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
+  arch_chroot "sed -i '/#NTP=/d' /etc/systemd/timesyncd.conf"
+  arch_chroot "sed -i 's/#Fallback//' /etc/systemd/timesyncd.conf"
+  arch_chroot "echo \"FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org\" >> /etc/systemd/timesyncd.conf"
+  arch_chroot "systemctl enable systemd-timesyncd.service"
 }
 #}}}
 #CONFIGURE HARDWARECLOCK {{{
@@ -593,6 +636,7 @@ configure_hardwareclock(){
     esac
     [[ -n $OPT ]] && break
   done
+  hwclock=$OPT
 }
 #}}}
 #CONFIGURE LOCALE {{{
@@ -605,7 +649,7 @@ configure_locale(){
     read_input_text "Confirm locale ($LOCALE)"
   done
   echo 'LANG="'$LOCALE_UTF8'"' > ${MOUNTPOINT}/etc/locale.conf
-  arch_chroot "sed -i '/'${LOCALE_UTF8}'/s/^#//' /etc/locale.gen"
+  arch_chroot "sed -i 's/#'${LOCALE_UTF8}'/'${LOCALE_UTF8}'/' /etc/locale.gen"
   arch_chroot "locale-gen"
 }
 #}}}
@@ -615,7 +659,13 @@ configure_mkinitcpio(){
   print_info "mkinitcpio is a Bash script used to create an initial ramdisk environment."
   [[ $LUKS -eq 1 ]] && sed -i '/^HOOK/s/block/block keymap encrypt/' ${MOUNTPOINT}/etc/mkinitcpio.conf
   [[ $LVM -eq 1 ]] && sed -i '/^HOOK/s/filesystems/lvm2 filesystems/' ${MOUNTPOINT}/etc/mkinitcpio.conf
-  arch_chroot "mkinitcpio -p linux"
+  if [ "$(arch-chroot ${MOUNTPOINT} ls /boot | grep hardened -c)" -gt "0" ]; then
+    arch_chroot "mkinitcpio -p linux-hardened"
+  elif [ "$(arch-chroot ${MOUNTPOINT} ls /boot | grep lts -c)" -gt "0" ]; then
+    arch_chroot "mkinitcpio -p linux-lts"
+  else
+    arch_chroot "mkinitcpio -p linux"
+  fi
 }
 #}}}
 #INSTALL BOOTLOADER {{{
@@ -623,10 +673,9 @@ install_bootloader(){
   print_title "BOOTLOADER - https://wiki.archlinux.org/index.php/Bootloader"
   print_info "The boot loader is responsible for loading the kernel and initial RAM disk before initiating the boot process."
   print_warning "\tROOT Partition: ${ROOT_MOUNTPOINT}"
-  print_warning "\tWARNING: There is no support for GRUB + LUKS/LVM."
   if [[ $UEFI -eq 1 ]]; then
     print_warning "\tUEFI Mode Detected"
-    bootloaders_list=("Grub2" "Syslinux" "Gummiboot" "Skip")
+    bootloaders_list=("Grub2" "Syslinux" "Systemd" "rEFInd" "Skip")
   else
     print_warning "\tBIOS Mode Detected"
     bootloaders_list=("Grub2" "Syslinux" "Skip")
@@ -644,10 +693,18 @@ install_bootloader(){
         break
         ;;
       3)
-        [[ $UEFI -eq 1 ]] && pacstrap ${MOUNTPOINT} gummiboot
         break
         ;;
       4)
+        if [[ $UEFI -eq 1 ]]
+        then
+          pacstrap ${MOUNTPOINT} refind-efi os-prober
+          break
+        else
+          invalid_option
+        fi
+        ;;
+      5)
         [[ $UEFI -eq 1 ]] && break || invalid_option
         ;;
       *)
@@ -670,6 +727,9 @@ configure_bootloader(){
       select OPT in "${grub_install_mode[@]}"; do
         case "$REPLY" in
           1)
+            if [[ $LUKS -eq 1 ]]; then
+              sed -i -e 's/GRUB_CMDLINE_LINUX="\(.\+\)"/GRUB_CMDLINE_LINUX="\1 cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="cryptdevice=\/dev\/'"${LUKS_DISK}"':crypt"/g' ${MOUNTPOINT}/etc/default/grub
+            fi
             if [[ $UEFI -eq 1 ]]; then
               arch_chroot "grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --bootloader-id=arch_grub --recheck"
             else
@@ -737,17 +797,17 @@ configure_bootloader(){
         esac
       done
       ;;
-    Gummiboot)
-      print_title "GUMMIBOOT - https://wiki.archlinux.org/index.php/Gummiboot"
-      print_info "Gummiboot is a UEFI boot manager written by Kay Sievers and Harald Hoyer. It is simple to configure, but can only start EFI executables, the Linux kernel EFISTUB, UEFI Shell, grub.efi, and such."
-      print_warning "\tGummiboot heavily suggests that /boot is mounted to the EFI partition, not /boot/efi, in order to simplify updating and configuration."
+    Systemd)
+      print_title "SYSTEMD-BOOT - https://wiki.archlinux.org/index.php/Systemd-boot"
+      print_info "systemd-boot (previously called gummiboot), is a simple UEFI boot manager which executes configured EFI images. The default entry is selected by a configured pattern (glob) or an on-screen menu. It is included with systemd since systemd 220-2."
+      print_warning "\tSystemd-boot heavily suggests that /boot is mounted to the EFI partition, not /boot/efi, in order to simplify updating and configuration."
       gummiboot_install_mode=("Automatic" "Manual")
       PS3="$prompt1"
       echo -e "Gummiboot install:\n"
       select OPT in "${gummiboot_install_mode[@]}"; do
         case "$REPLY" in
           1)
-            arch_chroot "gummiboot --path=${EFI_MOUNTPOINT} install"
+            arch_chroot "bootctl --path=${EFI_MOUNTPOINT} install"
             print_warning "Please check your .conf file"
             partuuid=`blkid -s PARTUUID ${ROOT_MOUNTPOINT} | awk '{print $2}' | sed 's/"//g' | sed 's/^.*=//'`
             if [[ $LUKS -eq 1 ]]; then
@@ -761,6 +821,30 @@ configure_bootloader(){
             pause_function
             $EDITOR ${MOUNTPOINT}/boot/loader/entries/arch.conf
             $EDITOR ${MOUNTPOINT}/boot/loader/loader.conf
+            break
+            ;;
+          2)
+            arch-chroot ${MOUNTPOINT}
+            break
+            ;;
+          *)
+            invalid_option
+            ;;
+        esac
+      done
+      ;;
+    rEFInd)
+      print_title "REFIND - https://wiki.archlinux.org/index.php/REFInd"
+      print_info "rEFInd is a UEFI boot manager capable of launching EFISTUB kernels. It is a fork of the no-longer-maintained rEFIt and fixes many issues with respect to non-Mac UEFI booting. It is designed to be platform-neutral and to simplify booting multiple OSes."
+      print_warning "When refind-install (used in Automatic mode) is run in chroot (e.g. in live system when installing Arch Linux) /boot/refind-linux.conf is populated with kernel options from the live system not the one on which it is installed. You need to adjust kernel options in /boot/refind-linux.conf manually."
+      refind_install_mode=("Automatic" "Manual")
+      PS3="$prompt1"
+      echo -e "rEFInd install:\n"
+      select OPT in "${refind_install_mode[@]}"; do
+        case "$REPLY" in
+          1)
+            arch_chroot "refind-install"
+            $EDITOR ${MOUNTPOINT}/boot/refind_linux.conf
             break
             ;;
           2)
@@ -810,18 +894,18 @@ pacman -Sy
 while true
 do
   print_title "ARCHLINUX ULTIMATE INSTALL - https://github.com/helmuthdu/aui"
-  echo " 1) $(mainmenu_item "${checklist[1]}" "Select Keymap")"
-  echo " 2) $(mainmenu_item "${checklist[2]}" "Select Editor")"
-  echo " 3) $(mainmenu_item "${checklist[3]}" "Configure Mirrorlist")"
-  echo " 4) $(mainmenu_item "${checklist[4]}" "Partition Scheme")"
-  echo " 5) $(mainmenu_item "${checklist[5]}" "Install Base System")"
-  echo " 6) $(mainmenu_item "${checklist[6]}" "Configure Fstab")"
-  echo " 7) $(mainmenu_item "${checklist[7]}" "Configure Hostname")"
-  echo " 8) $(mainmenu_item "${checklist[8]}" "Configure Timezone")"
-  echo " 9) $(mainmenu_item "${checklist[9]}" "Configure Hardware Clock")"
-  echo "10) $(mainmenu_item "${checklist[10]}" "Configure Locale")"
+  echo " 1) $(mainmenu_item "${checklist[1]}"  "Select Keymap"            "${KEYMAP}" )"
+  echo " 2) $(mainmenu_item "${checklist[2]}"  "Select Editor"            "${EDITOR}" )"
+  echo " 3) $(mainmenu_item "${checklist[3]}"  "Configure Mirrorlist"     "${country_name} (${country_code})" )"
+  echo " 4) $(mainmenu_item "${checklist[4]}"  "Partition Scheme"         "${partition_layout}: ${partition}(${filesystem}) swap(${swap_type})" )"
+  echo " 5) $(mainmenu_item "${checklist[5]}"  "Install Base System")"
+  echo " 6) $(mainmenu_item "${checklist[6]}"  "Configure Fstab"          "${fstab}" )"
+  echo " 7) $(mainmenu_item "${checklist[7]}"  "Configure Hostname"       "${host_name}" )"
+  echo " 8) $(mainmenu_item "${checklist[8]}"  "Configure Timezone"       "${ZONE}/${SUBZONE}" )"
+  echo " 9) $(mainmenu_item "${checklist[9]}"  "Configure Hardware Clock" "${hwclock}" )"
+  echo "10) $(mainmenu_item "${checklist[10]}" "Configure Locale"         "${LOCALE}" )"
   echo "11) $(mainmenu_item "${checklist[11]}" "Configure Mkinitcpio")"
-  echo "12) $(mainmenu_item "${checklist[12]}" "Install Bootloader")"
+  echo "12) $(mainmenu_item "${checklist[12]}" "Install Bootloader"       "${bootloader}" )"
   echo "13) $(mainmenu_item "${checklist[13]}" "Root Password")"
   echo ""
   echo " d) Done"
@@ -896,4 +980,3 @@ do
   done
 done
 #}}}
-
